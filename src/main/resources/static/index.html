@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click Counter</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4CAF50;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4CAF50;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #clickCount {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #clickCount h3 {
+            color: #333;
+        }
+
+        #clickCount p {
+            background-color: #f0f0f0;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Click Counter</h1>
+    <input type="text" id="userId" placeholder="Enter user ID">
+    <button onclick="registerClick()">Click here!</button>
+    <div id="clickCount"></div>
+</div>
+
+<script>
+    function registerClick() {
+        const userId = document.getElementById('userId').value;
+        if (!userId) {
+            alert('Please enter a user ID');
+            return;
+        }
+
+        fetch(`http://localhost:8080/click/${userId}`, {
+            method: 'GET'
+        })
+            .then(response => response.text())
+            .then(data => {
+                console.log('Success:', data);
+                getClickCounts();
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function getClickCounts() {
+        fetch('http://localhost:8080/click/count')
+            .then(response => response.json())
+            .then(data => {
+                const countDiv = document.getElementById('clickCount');
+                countDiv.innerHTML = '<h3>Click Counts:</h3>';
+                for (const [user, count] of Object.entries(data)) {
+                    countDiv.innerHTML += `<p>User ${user}: ${count} clicks</p>`;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Update counts every second
+    setInterval(getClickCounts, 1000);
+</script>
+</body>
+</html>
